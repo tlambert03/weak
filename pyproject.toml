@@ -60,7 +60,7 @@ sources = ["src"]
 mypy-args = ["--ignore-missing-imports"]
 enable-by-default = false
 require-runtime-dependencies = true
-dependencies = ["hatch-mypyc>=0.13.0", "mypy>=1.0.0"]
+dependencies = ["hatch-mypyc>=0.13.0", "mypy"]
 include = ["src/**/*.py"]
 
 [tool.cibuildwheel]

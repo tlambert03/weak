@@ -39,4 +39,5 @@ repos:
     rev: v1.0.0
     hooks:
       - id: mypy
+        exclude: "^src/.*.pyi$"
         files: "^src/"
