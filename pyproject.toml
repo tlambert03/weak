@@ -9,11 +9,8 @@ name = "weak"
 description = "weakrefs for all the things"
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "BSD 3-Clause License"}
-authors = [
-  {email = "talley.lambert@gmail.com"},
-  {name = "Talley Lambert"},
-]
+license = { text = "BSD 3-Clause License" }
+authors = [{ email = "talley.lambert@gmail.com", name = "Talley Lambert" }]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: BSD License",
@@ -21,6 +18,8 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Typing :: Typed",
 ]
 dynamic = ["version"]
 dependencies = []
@@ -28,7 +27,7 @@ dependencies = []
 # extras
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
-test = ["pytest>=6.0", "pytest-cov"]
+test = ["pytest", "pytest-cov"]
 dev = [
     "black",
     "ipython",
@@ -45,22 +44,34 @@ dev = [
 homepage = "https://github.com/tlambert03/weak"
 repository = "https://github.com/tlambert03/weak"
 
-# same as console_scripts entry point
-# [project.scripts]
-# spam-cli = "spam:main_cli"
-
-# Entry points
-# https://peps.python.org/pep-0621/#entry-points
-# [project.entry-points."spam.magical"]
-# tomatoes = "spam:main_tomatoes"
 
 # https://hatch.pypa.io/latest/config/metadata/
 [tool.hatch.version]
 source = "vcs"
 
-# https://hatch.pypa.io/latest/config/build/#file-selection
-# [tool.hatch.build.targets.sdist]
-# include = ["/src", "/tests"]
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "CHANGELOG.md"]
+
+[tool.hatch.build.targets.wheel]
+only-include = ["src"]
+sources = ["src"]
+
+[tool.hatch.build.targets.wheel.hooks.mypyc]
+mypy-args = ["--ignore-missing-imports"]
+enable-by-default = false
+require-runtime-dependencies = true
+dependencies = ["hatch-mypyc>=0.13.0", "mypy>=1.0.0"]
+include = ["src/**/*.py"]
+
+[tool.cibuildwheel]
+# Skip 32-bit builds & PyPy wheels on all platforms
+skip = ["*-manylinux_i686", "*-musllinux_i686", "*-win32", "pp*"]
+test-extras = ["test"]
+test-command = "pytest {project}/tests -v"
+test-skip = "*-musllinux*"
+
+[tool.cibuildwheel.environment]
+HATCH_BUILD_HOOKS_ENABLE = "1"
 
 
 # https://github.com/charliermarsh/ruff
@@ -72,14 +83,12 @@ extend-select = [
     "F",    # flakes
     "D",    # pydocstyle
     "I001", # isort
-    "U",    # pyupgrade
-    # "N",  # pep8-naming
-    # "S",  # bandit
+    "UP",   # pyupgrade
+    "S",    # bandit
     "C",    # flake8-comprehensions
     "B",    # flake8-bugbear
     "A001", # flake8-builtins
     "RUF",  # ruff-specific rules
-    "M001", # Unused noqa directive
 ]
 extend-ignore = [
     "D100", # Missing docstring in public module
@@ -92,14 +101,14 @@ extend-ignore = [
 ]
 
 [tool.ruff.per-file-ignores]
-"tests/*.py" = ["D"]
+"tests/*.py" = ["D", "S"]
 
 # https://docs.pytest.org/en/6.2.x/customize.html
 [tool.pytest.ini_options]
-minversion = "6.0"
 testpaths = ["tests"]
 filterwarnings = [
     "error",
+    "ignore:The distutils package is deprecated:DeprecationWarning:",
 ]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
@@ -119,7 +128,11 @@ exclude_lines = [
     "if TYPE_CHECKING:",
     "@overload",
     "except ImportError",
+    "\\.\\.\\.",
+    "raise NotImplementedError()",
 ]
+[tool.coverage.run]
+source = ["src"]
 
 # https://github.com/mgedmin/check-manifest#configuration
 [tool.check-manifest]
@@ -130,11 +143,3 @@ ignore = [
     "tests/**/*",
     "tox.ini",
 ]
-
-# https://python-semantic-release.readthedocs.io/en/latest/configuration.html
-[tool.semantic_release]
-version_source = "tag_only"
-branch = "main"
-changelog_sections="feature,fix,breaking,documentation,performance,chore,:boom:,:sparkles:,:children_crossing:,:lipstick:,:iphone:,:egg:,:chart_with_upwards_trend:,:ambulance:,:lock:,:bug:,:zap:,:goal_net:,:alien:,:wheelchair:,:speech_balloon:,:mag:,:apple:,:penguin:,:checkered_flag:,:robot:,:green_apple:,Other"
-# commit_parser=semantic_release.history.angular_parser
-build_command = "pip install build && python -m build"

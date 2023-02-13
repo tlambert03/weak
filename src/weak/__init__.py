@@ -1,4 +1,4 @@
-"""weakrefs for all the things"""
+"""weakrefs for all the things."""
 from importlib.metadata import PackageNotFoundError, version
 
 try:
